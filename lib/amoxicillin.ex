@@ -1,0 +1,100 @@
+defmodule Amoxicillin do
+  @moduledoc false
+  use ExUnit.Case
+
+  def not_called_when(mock, function_name, when_function, raise_function)
+      when is_function(when_function) do
+    not_called(mock, function_name, raise_function)
+
+    when_function.()
+  end
+
+  def called_when(mock, function_name, mock_function, when_function)
+      when is_function(when_function) do
+    Mox.expect(
+      mock,
+      function_name,
+      mock_function
+    )
+
+    Mox.stub(
+      mock,
+      function_name,
+      mock_function
+    )
+
+    when_function.()
+    Mox.verify!()
+  end
+
+  def not_called(mock, function_name, raise_function) do
+    Mox.expect(
+      mock,
+      function_name,
+      raise_function
+    )
+  end
+
+  def called_once_when(mock, function_name, mock_function, when_function) do
+    Mox.expect(
+      mock,
+      function_name,
+      1,
+      mock_function
+    )
+
+    when_function.()
+    Mox.verify!()
+  end
+
+  def assert_mock(module, fun_ptr) do
+    fun_name = fun_name(fun_ptr)
+    fun_arity = fun_arity(fun_ptr)
+    functions = mod_functions(module)
+
+    with true <- Keyword.get(functions, fun_name) != nil,
+         true <- Keyword.get(functions, fun_name) == fun_arity do
+      :ok
+    else
+      _ ->
+        raise Mox.VerificationError,
+              "Function #{inspect(fun_name)}/#{fun_arity} not found in module #{inspect(module)} or has wrong arity."
+    end
+
+    case fun_arity < max_arity_supported() do
+      true ->
+        :ok
+
+      false ->
+        raise Mox.VerificationError,
+              "Arities greater than #{max_arity_supported()} are not supported."
+    end
+  end
+
+  # WIP!!!
+  def not_called_when2(module, fun_ptr, when_fun) do
+    # check
+    assert_mock(module, fun_ptr)
+    # dinamically create a function with the arity of the function to be checked
+    # that throws an error if called
+    # not_called_fun = @not_called_funtions[arity - 1]
+    # not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
+  end
+
+  defp max_arity_supported do
+    # count of functions in @not_called_funtions fails???
+    6
+  end
+
+  defp fun_name(fun_ptr) do
+    Keyword.get(:erlang.fun_info(fun_ptr), :name)
+  end
+
+  defp fun_arity(fun_ptr) do
+    Keyword.get(:erlang.fun_info(fun_ptr), :arity)
+  end
+
+  defp mod_functions(module) do
+    Keyword.get(module.module_info, :exports)
+  end
+end
