@@ -14,32 +14,7 @@ defmodule AmoxicillinTest do
     {:ok, some_mock: some_mock}
   end
 
-  test "should verify not called", %{
-    some_mock: some_mock
-  } do
-    Amoxicillin.not_called_when(some_mock, :some_function, fn -> :ok end, fn ->
-      Mox.UnexpectedCallError
-    end)
-
-    Amoxicillin.not_called_when(some_mock, :with_arity, fn -> :ok end, fn _ ->
-      Mox.UnexpectedCallError
-    end)
-  end
-
-  test "not_called_when should fail if called", %{
-    some_mock: some_mock
-  } do
-    assert_raise(
-      Mox.UnexpectedCallError,
-      fn ->
-        Amoxicillin.not_called_when(
-          some_mock,
-          :some_function,
-          fn -> some_mock.some_function() end,
-          fn -> raise Mox.UnexpectedCallError end
-        )
-      end
-    )
+  describe "called_when/" do
   end
 
   test "should verify called", %{
@@ -132,23 +107,12 @@ defmodule AmoxicillinTest do
     )
   end
 
-  test "should verify function exists with arity", %{
-    some_mock: some_mock
-  } do
-    assert Amoxicillin.assert_mock(some_mock, &some_mock.with_arity/1) == :ok
-
-    assert_raise(
-      Mox.VerificationError,
-      fn -> Amoxicillin.assert_mock(some_mock, &some_mock.with_arity/0) end
-    )
-  end
-
   test "should verify function arity limit", %{
     some_mock: some_mock
   } do
     assert_raise(
       Mox.VerificationError,
-      fn -> Amoxicillin.assert_mock(some_mock, &some_mock.with_arity/20) end
+      fn -> Amoxicillin.not_called_when(some_mock, &some_mock.with_arity/20, fn -> :ok end) end
     )
   end
 

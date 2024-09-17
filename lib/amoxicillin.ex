@@ -4,11 +4,10 @@ defmodule Amoxicillin do
 
   @max_arity_supported 5
 
-  def not_called_when(mock, function_name, when_function, raise_function)
-      when is_function(when_function) do
-    not_called(mock, function_name, raise_function)
-
-    when_function.()
+  def not_called_when(module, fun_ptr, when_fun) do
+    assert_mock(module, fun_ptr)
+    not_called_fun = fun_ptr |> fun_arity |> not_called_function()
+    not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
   end
 
   def called_when(mock, function_name, mock_function, when_function)
@@ -27,6 +26,16 @@ defmodule Amoxicillin do
 
     when_function.()
     Mox.verify!()
+  end
+
+  def not_called(mock, fun_ptr) do
+    raise_function = fun_ptr |> fun_arity |> not_called_function()
+
+    Mox.expect(
+      mock,
+      fun_ptr,
+      raise_function
+    )
   end
 
   def not_called(mock, function_name, raise_function) do
@@ -49,7 +58,7 @@ defmodule Amoxicillin do
     Mox.verify!()
   end
 
-  def assert_mock(module, fun_ptr) do
+  defp assert_mock(module, fun_ptr) do
     fun_name = fun_name(fun_ptr)
     fun_arity = fun_arity(fun_ptr)
     functions = mod_functions(module)
@@ -73,10 +82,11 @@ defmodule Amoxicillin do
     end
   end
 
-  def not_called_when(module, fun_ptr, when_fun) do
-    assert_mock(module, fun_ptr)
-    not_called_fun = fun_ptr |> fun_arity |> not_called_function()
-    not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
+  defp not_called_when(mock, function_name, when_function, raise_function)
+       when is_function(when_function) do
+    not_called(mock, function_name, raise_function)
+
+    when_function.()
   end
 
   defp fun_name(fun_ptr) do
