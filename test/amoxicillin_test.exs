@@ -63,8 +63,7 @@ defmodule AmoxicillinTest do
     } do
       Amoxicillin.called_once_when(
         some_mock,
-        :some_function,
-        fn -> :ok end,
+        &some_mock.some_function/0,
         fn -> some_mock.some_function() end
       )
     end
@@ -77,8 +76,7 @@ defmodule AmoxicillinTest do
         fn ->
           Amoxicillin.called_once_when(
             some_mock,
-            :some_function,
-            fn -> :ok end,
+            &some_mock.some_function/0,
             fn -> :ok end
           )
         end
@@ -93,8 +91,7 @@ defmodule AmoxicillinTest do
         fn ->
           Amoxicillin.called_once_when(
             some_mock,
-            :some_function,
-            fn -> :ok end,
+            &some_mock.some_function/0,
             fn ->
               some_mock.some_function()
               some_mock.some_function()

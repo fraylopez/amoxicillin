@@ -33,15 +33,8 @@ defmodule Amoxicillin do
 
   def not_called(mock, fun_ptr) do
     raise_function = fun_ptr |> fun_arity |> raise_function()
+    function_name = fun_name(fun_ptr)
 
-    Mox.expect(
-      mock,
-      fun_ptr,
-      raise_function
-    )
-  end
-
-  def not_called(mock, function_name, raise_function) do
     Mox.expect(
       mock,
       function_name,
@@ -49,12 +42,15 @@ defmodule Amoxicillin do
     )
   end
 
-  def called_once_when(mock, function_name, mock_function, when_function) do
+  def called_once_when(mock, fun_ptr, when_function) do
+    dummy_function = fun_ptr |> fun_arity |> dummy_function()
+    function_name = fun_name(fun_ptr)
+
     Mox.expect(
       mock,
       function_name,
       1,
-      mock_function
+      dummy_function
     )
 
     when_function.()
@@ -88,8 +84,15 @@ defmodule Amoxicillin do
   defp not_called_when(mock, function_name, when_function, raise_function)
        when is_function(when_function) do
     not_called(mock, function_name, raise_function)
-
     when_function.()
+  end
+
+  defp not_called(mock, function_name, raise_function) do
+    Mox.expect(
+      mock,
+      function_name,
+      raise_function
+    )
   end
 
   defp fun_name(fun_ptr) do
