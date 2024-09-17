@@ -1,21 +1,5 @@
 # Amoxicillin
 
-**TODO: Add description**
+Provides a semantic api for testing and abstracts the underlying testing framework.
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `amoxicillin` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:amoxicillin, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/amoxicillin>.
-
+Inspired by [Jest](https://jestjs.io/) and [Mocha](https://mochajs.org/).
