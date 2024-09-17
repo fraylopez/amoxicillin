@@ -6,22 +6,25 @@ defmodule Amoxicillin do
 
   def not_called_when(module, fun_ptr, when_fun) do
     assert_mock(module, fun_ptr)
-    not_called_fun = fun_ptr |> fun_arity |> not_called_function()
+    not_called_fun = fun_ptr |> fun_arity |> raise_function()
     not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
   end
 
-  def called_when(mock, function_name, mock_function, when_function)
+  def called_when(mock, fun_ptr, when_function)
       when is_function(when_function) do
+    dummy_function = fun_ptr |> fun_arity |> dummy_function()
+    function_name = fun_name(fun_ptr)
+
     Mox.expect(
       mock,
       function_name,
-      mock_function
+      dummy_function
     )
 
     Mox.stub(
       mock,
       function_name,
-      mock_function
+      dummy_function
     )
 
     when_function.()
@@ -29,7 +32,7 @@ defmodule Amoxicillin do
   end
 
   def not_called(mock, fun_ptr) do
-    raise_function = fun_ptr |> fun_arity |> not_called_function()
+    raise_function = fun_ptr |> fun_arity |> raise_function()
 
     Mox.expect(
       mock,
@@ -101,7 +104,7 @@ defmodule Amoxicillin do
     Keyword.get(module.module_info(), :exports)
   end
 
-  defp not_called_function(arity) do
+  defp raise_function(arity) do
     # TODO:
     # dinamically create a function with the arity of the function to be checked
     # that throws an error if called
@@ -112,6 +115,18 @@ defmodule Amoxicillin do
       fn _, _, _ -> raise Mox.UnexpectedCallError end,
       fn _, _, _, _ -> raise Mox.UnexpectedCallError end,
       fn _, _, _, _, _ -> raise Mox.UnexpectedCallError end
+    ]
+    |> Enum.at(arity)
+  end
+
+  defp dummy_function(arity) do
+    [
+      fn -> :ok end,
+      fn _ -> :ok end,
+      fn _, _ -> :ok end,
+      fn _, _, _ -> :ok end,
+      fn _, _, _, _ -> :ok end,
+      fn _, _, _, _, _ -> :ok end
     ]
     |> Enum.at(arity)
   end

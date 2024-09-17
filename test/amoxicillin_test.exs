@@ -14,14 +14,13 @@ defmodule AmoxicillinTest do
     {:ok, some_mock: some_mock}
   end
 
-  describe "called_when/" do
+  describe "called_when" do
     test "should verify called", %{
       some_mock: some_mock
     } do
       Amoxicillin.called_when(
         some_mock,
-        :some_function,
-        fn -> :ok end,
+        &some_mock.some_function/0,
         fn ->
           some_mock.some_function()
         end
@@ -33,8 +32,7 @@ defmodule AmoxicillinTest do
     } do
       Amoxicillin.called_when(
         some_mock,
-        :some_function,
-        fn -> :ok end,
+        &some_mock.some_function/0,
         fn ->
           some_mock.some_function()
           some_mock.some_function()
@@ -51,8 +49,7 @@ defmodule AmoxicillinTest do
         fn ->
           Amoxicillin.called_when(
             some_mock,
-            :some_function,
-            fn -> :ok end,
+            &some_mock.some_function/0,
             fn -> :ok end
           )
         end
