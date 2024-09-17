@@ -2,6 +2,8 @@ defmodule Amoxicillin do
   @moduledoc false
   use ExUnit.Case
 
+  @max_arity_supported 5
+
   def not_called_when(mock, function_name, when_function, raise_function)
       when is_function(when_function) do
     not_called(mock, function_name, raise_function)
@@ -61,13 +63,13 @@ defmodule Amoxicillin do
               "Function #{inspect(fun_name)}/#{fun_arity} not found in module #{inspect(module)} or has wrong arity."
     end
 
-    case fun_arity < max_arity_supported() do
+    case fun_arity < @max_arity_supported do
       true ->
         :ok
 
       false ->
         raise Mox.VerificationError,
-              "Arities greater than #{max_arity_supported()} are not supported."
+              "Arities greater than #{@max_arity_supported} are not supported."
     end
   end
 
@@ -75,11 +77,6 @@ defmodule Amoxicillin do
     assert_mock(module, fun_ptr)
     not_called_fun = fun_ptr |> fun_arity |> not_called_function()
     not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
-  end
-
-  defp max_arity_supported do
-    # count of functions in @not_called_funtions fails???
-    6
   end
 
   defp fun_name(fun_ptr) do
