@@ -72,13 +72,8 @@ defmodule Amoxicillin do
   end
 
   def not_called_when(module, fun_ptr, when_fun) do
-    # check
     assert_mock(module, fun_ptr)
-    # TODO:
-    # dinamically create a function with the arity of the function to be checked
-    # that throws an error if called
     not_called_fun = fun_ptr |> fun_arity |> not_called_function()
-
     not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
   end
 
@@ -100,6 +95,9 @@ defmodule Amoxicillin do
   end
 
   defp not_called_function(arity) do
+    # TODO:
+    # dinamically create a function with the arity of the function to be checked
+    # that throws an error if called
     [
       fn -> raise Mox.UnexpectedCallError end,
       fn _ -> raise Mox.UnexpectedCallError end,
