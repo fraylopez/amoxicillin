@@ -7,7 +7,7 @@ defmodule AmoxicillinTest do
     @callback with_arity(param :: any()) :: :ok
   end
 
-  setup do
+  setup_all do
     some_mock = Mox.defmock(SomeMock, for: SomeBehaviour)
     Application.ensure_all_started(:mox)
 
@@ -152,10 +152,22 @@ defmodule AmoxicillinTest do
     )
   end
 
-  @tag skip: "Wip"
-  test "should veryfy not called with function", %{
+  test "should verify not called with function", %{
     some_mock: some_mock
   } do
-    Amoxicillin.not_called_when2(some_mock, &some_mock.with_arity/1, fn -> :ok end)
+    Amoxicillin.not_called_when(some_mock, &some_mock.with_arity/1, fn -> :ok end)
+  end
+
+  test "should fail on not called with function", %{
+    some_mock: some_mock
+  } do
+    assert_raise(
+      Mox.UnexpectedCallError,
+      fn ->
+        Amoxicillin.not_called_when(some_mock, &some_mock.with_arity/1, fn ->
+          some_mock.with_arity(1)
+        end)
+      end
+    )
   end
 end

@@ -71,14 +71,15 @@ defmodule Amoxicillin do
     end
   end
 
-  # WIP!!!
-  def not_called_when2(module, fun_ptr, when_fun) do
+  def not_called_when(module, fun_ptr, when_fun) do
     # check
     assert_mock(module, fun_ptr)
+    # TODO:
     # dinamically create a function with the arity of the function to be checked
     # that throws an error if called
-    # not_called_fun = @not_called_funtions[arity - 1]
-    # not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
+    not_called_fun = fun_ptr |> fun_arity |> not_called_function()
+
+    not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
   end
 
   defp max_arity_supported do
@@ -95,6 +96,18 @@ defmodule Amoxicillin do
   end
 
   defp mod_functions(module) do
-    Keyword.get(module.module_info, :exports)
+    Keyword.get(module.module_info(), :exports)
+  end
+
+  defp not_called_function(arity) do
+    [
+      fn -> raise Mox.UnexpectedCallError end,
+      fn _ -> raise Mox.UnexpectedCallError end,
+      fn _, _ -> raise Mox.UnexpectedCallError end,
+      fn _, _, _ -> raise Mox.UnexpectedCallError end,
+      fn _, _, _, _ -> raise Mox.UnexpectedCallError end,
+      fn _, _, _, _, _ -> raise Mox.UnexpectedCallError end
+    ]
+    |> Enum.at(arity)
   end
 end
