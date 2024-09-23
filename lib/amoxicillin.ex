@@ -43,33 +43,11 @@ defmodule Amoxicillin do
   end
 
   def called_once_when(mock, fun_ptr, when_function) do
-    dummy_function = fun_ptr |> fun_arity |> dummy_function()
-    function_name = fun_name(fun_ptr)
-
-    Mox.expect(
-      mock,
-      function_name,
-      1,
-      dummy_function
-    )
-
-    when_function.()
-    Mox.verify!()
+    called_times_when(mock, fun_ptr, 1, when_function)
   end
 
   def called_twice_when(mock, fun_ptr, when_function) do
-    dummy_function = fun_ptr |> fun_arity |> dummy_function()
-    function_name = fun_name(fun_ptr)
-
-    Mox.expect(
-      mock,
-      function_name,
-      2,
-      dummy_function
-    )
-
-    when_function.()
-    Mox.verify!()
+    called_times_when(mock, fun_ptr, 2, when_function)
   end
 
   def called_times_when(mock, fun_ptr, times, when_function) do
