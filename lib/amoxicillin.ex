@@ -1,5 +1,6 @@
 defmodule Amoxicillin do
   @moduledoc false
+  alias Amoxicillin.Behaviour
 
   @max_arity_supported 5
 
@@ -9,19 +10,20 @@ defmodule Amoxicillin do
     not_called_when(module, fun_name(fun_ptr), when_fun, not_called_fun)
   end
 
-  def called_when(mock, fun_ptr, when_function)
+  def called_when(fun_ptr, when_function)
       when is_function(when_function) do
     dummy_function = fun_ptr |> fun_arity |> dummy_function()
     function_name = fun_name(fun_ptr)
+    module = get_module(fun_ptr)
 
     Mox.expect(
-      mock,
+      module,
       function_name,
       dummy_function
     )
 
     Mox.stub(
-      mock,
+      module,
       function_name,
       dummy_function
     )
@@ -64,6 +66,20 @@ defmodule Amoxicillin do
     Mox.verify!()
   end
 
+  def defmock(module) do
+    case Behaviour.abstract(
+           module,
+           "#{module}_Mock_#{:rand.uniform(100_000)}" |> String.to_atom()
+         ) do
+      {:module, mock, _, _} ->
+        Mox.defmock(module, for: mock)
+
+      _ ->
+        raise Mox.VerificationError,
+              "Module #{inspect(module)} is not a mock."
+    end
+  end
+
   defp assert_mock(module, fun_ptr) do
     fun_name = fun_name(fun_ptr)
     fun_arity = fun_arity(fun_ptr)
@@ -100,6 +116,10 @@ defmodule Amoxicillin do
       function_name,
       raise_function
     )
+  end
+
+  defp get_module(fun_ptr) do
+    :erlang.fun_info(fun_ptr)[:module]
   end
 
   defp fun_name(fun_ptr) do

@@ -7,8 +7,18 @@ defmodule AmoxicillinTest do
     @callback with_arity(param :: any()) :: :ok
   end
 
+  defmodule SomeModule do
+    def some_function() do
+      :ok
+    end
+
+    def with_arity(param) do
+      :ok
+    end
+  end
+
   setup_all do
-    some_mock = Mox.defmock(SomeMock, for: SomeBehaviour)
+    some_mock = Amoxicillin.defmock(SomeModule)
     Application.ensure_all_started(:mox)
 
     {:ok, some_mock: some_mock}
@@ -19,7 +29,6 @@ defmodule AmoxicillinTest do
       some_mock: some_mock
     } do
       Amoxicillin.called_when(
-        some_mock,
         &some_mock.some_function/0,
         fn ->
           some_mock.some_function()
@@ -31,7 +40,6 @@ defmodule AmoxicillinTest do
       some_mock: some_mock
     } do
       Amoxicillin.called_when(
-        some_mock,
         &some_mock.some_function/0,
         fn ->
           some_mock.some_function()
@@ -48,7 +56,6 @@ defmodule AmoxicillinTest do
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_when(
-            some_mock,
             &some_mock.some_function/0,
             fn -> :ok end
           )
