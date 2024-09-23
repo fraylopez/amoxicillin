@@ -1,6 +1,5 @@
 defmodule Amoxicillin do
   @moduledoc false
-  use ExUnit.Case
 
   @max_arity_supported 5
 
