@@ -72,6 +72,21 @@ defmodule Amoxicillin do
     Mox.verify!()
   end
 
+  def called_times_when(mock, fun_ptr, times, when_function) do
+    dummy_function = fun_ptr |> fun_arity |> dummy_function()
+    function_name = fun_name(fun_ptr)
+
+    Mox.expect(
+      mock,
+      function_name,
+      times,
+      dummy_function
+    )
+
+    when_function.()
+    Mox.verify!()
+  end
+
   defp assert_mock(module, fun_ptr) do
     fun_name = fun_name(fun_ptr)
     fun_arity = fun_arity(fun_ptr)

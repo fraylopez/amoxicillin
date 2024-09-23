@@ -149,6 +149,79 @@ defmodule AmoxicillinTest do
     end
   end
 
+  describe "called_times_when" do
+    test "should verify called n", %{
+      some_mock: some_mock
+    } do
+      Amoxicillin.called_times_when(
+        some_mock,
+        &some_mock.some_function/0,
+        3,
+        fn ->
+          some_mock.some_function()
+          some_mock.some_function()
+          some_mock.some_function()
+        end
+      )
+    end
+
+    test "should fail if not called", %{
+      some_mock: some_mock
+    } do
+      assert_raise(
+        Mox.VerificationError,
+        fn ->
+          Amoxicillin.called_times_when(
+            some_mock,
+            &some_mock.some_function/0,
+            3,
+            fn -> :ok end
+          )
+        end
+      )
+    end
+
+    test "should fail if called n-1", %{
+      some_mock: some_mock
+    } do
+      assert_raise(
+        Mox.VerificationError,
+        fn ->
+          Amoxicillin.called_times_when(
+            some_mock,
+            &some_mock.some_function/0,
+            3,
+            fn ->
+              some_mock.some_function()
+              some_mock.some_function()
+            end
+          )
+        end
+      )
+    end
+
+    test "should fail if called n+1", %{
+      some_mock: some_mock
+    } do
+      assert_raise(
+        Mox.UnexpectedCallError,
+        fn ->
+          Amoxicillin.called_times_when(
+            some_mock,
+            &some_mock.some_function/0,
+            3,
+            fn ->
+              some_mock.some_function()
+              some_mock.some_function()
+              some_mock.some_function()
+              some_mock.some_function()
+            end
+          )
+        end
+      )
+    end
+  end
+
   describe "not_called_when" do
     test "should verify function arity limit", %{
       some_mock: some_mock
