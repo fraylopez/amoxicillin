@@ -102,6 +102,53 @@ defmodule AmoxicillinTest do
     end
   end
 
+  describe "called_twice_when" do
+    test "should verify called twice", %{
+      some_mock: some_mock
+    } do
+      Amoxicillin.called_twice_when(
+        some_mock,
+        &some_mock.some_function/0,
+        fn ->
+          some_mock.some_function()
+          some_mock.some_function()
+        end
+      )
+    end
+
+    test "should fail if not called", %{
+      some_mock: some_mock
+    } do
+      assert_raise(
+        Mox.VerificationError,
+        fn ->
+          Amoxicillin.called_twice_when(
+            some_mock,
+            &some_mock.some_function/0,
+            fn -> :ok end
+          )
+        end
+      )
+    end
+
+    test "should fail if called once", %{
+      some_mock: some_mock
+    } do
+      assert_raise(
+        Mox.VerificationError,
+        fn ->
+          Amoxicillin.called_twice_when(
+            some_mock,
+            &some_mock.some_function/0,
+            fn ->
+              some_mock.some_function()
+            end
+          )
+        end
+      )
+    end
+  end
+
   describe "not_called_when" do
     test "should verify function arity limit", %{
       some_mock: some_mock
