@@ -12,51 +12,51 @@ defmodule AmoxicillinTest do
       :ok
     end
 
-    def with_arity(param) do
+    def with_arity(_param) do
       :ok
     end
   end
 
+  defmodule SomeCallerModule do
+    def some_function() do
+      SomeModule.some_function()
+    end
+  end
+
   setup_all do
-    some_mock = Amoxicillin.defmock(SomeModule)
+    some_mock = Mox.defmock(SomeModuleMock, for: SomeBehaviour)
     Application.ensure_all_started(:mox)
 
     {:ok, some_mock: some_mock}
   end
 
   describe "called_when" do
-    test "should verify called", %{
-      some_mock: some_mock
-    } do
+    test "should verify called" do
       Amoxicillin.called_when(
-        &some_mock.some_function/0,
+        &SomeModule.some_function/0,
         fn ->
-          some_mock.some_function()
+          SomeModule.some_function()
         end
       )
     end
 
-    test "should verify called when called more than once", %{
-      some_mock: some_mock
-    } do
+    test "should verify called when called more than once" do
       Amoxicillin.called_when(
-        &some_mock.some_function/0,
+        &SomeModule.some_function/0,
         fn ->
-          some_mock.some_function()
-          some_mock.some_function()
-          some_mock.some_function()
+          SomeModule.some_function()
+          SomeModule.some_function()
+          SomeModule.some_function()
         end
       )
     end
 
-    test "should fail if not called", %{
-      some_mock: some_mock
-    } do
+    test "should fail if not called" do
       assert_raise(
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_when(
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             fn -> :ok end
           )
         end
@@ -65,43 +65,34 @@ defmodule AmoxicillinTest do
   end
 
   describe "called_once_when" do
-    test "should verify called once", %{
-      some_mock: some_mock
-    } do
+    test "should verify called once" do
       Amoxicillin.called_once_when(
-        some_mock,
-        &some_mock.some_function/0,
-        fn -> some_mock.some_function() end
+        &SomeModule.some_function/0,
+        fn -> SomeCallerModule.some_function() end
       )
     end
 
-    test "should fail if not called", %{
-      some_mock: some_mock
-    } do
+    test "should fail if not called" do
       assert_raise(
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_once_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             fn -> :ok end
           )
         end
       )
     end
 
-    test "should fail if called more than once", %{
-      some_mock: some_mock
-    } do
+    test "should fail if called more than once" do
       assert_raise(
         Mox.UnexpectedCallError,
         fn ->
           Amoxicillin.called_once_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             fn ->
-              some_mock.some_function()
-              some_mock.some_function()
+              SomeModule.some_function()
+              SomeModule.some_function()
             end
           )
         end
@@ -110,45 +101,36 @@ defmodule AmoxicillinTest do
   end
 
   describe "called_twice_when" do
-    test "should verify called twice", %{
-      some_mock: some_mock
-    } do
+    test "should verify called twice" do
       Amoxicillin.called_twice_when(
-        some_mock,
-        &some_mock.some_function/0,
+        &SomeModule.some_function/0,
         fn ->
-          some_mock.some_function()
-          some_mock.some_function()
+          SomeModule.some_function()
+          SomeModule.some_function()
         end
       )
     end
 
-    test "should fail if not called", %{
-      some_mock: some_mock
-    } do
+    test "should fail if not called" do
       assert_raise(
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_twice_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             fn -> :ok end
           )
         end
       )
     end
 
-    test "should fail if called once", %{
-      some_mock: some_mock
-    } do
+    test "should fail if called once" do
       assert_raise(
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_twice_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             fn ->
-              some_mock.some_function()
+              SomeModule.some_function()
             end
           )
         end
@@ -157,30 +139,24 @@ defmodule AmoxicillinTest do
   end
 
   describe "called_times_when" do
-    test "should verify called n", %{
-      some_mock: some_mock
-    } do
+    test "should verify called n" do
       Amoxicillin.called_times_when(
-        some_mock,
-        &some_mock.some_function/0,
+        &SomeModule.some_function/0,
         3,
         fn ->
-          some_mock.some_function()
-          some_mock.some_function()
-          some_mock.some_function()
+          SomeModule.some_function()
+          SomeModule.some_function()
+          SomeModule.some_function()
         end
       )
     end
 
-    test "should fail if not called", %{
-      some_mock: some_mock
-    } do
+    test "should fail if not called" do
       assert_raise(
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_times_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             3,
             fn -> :ok end
           )
@@ -188,40 +164,34 @@ defmodule AmoxicillinTest do
       )
     end
 
-    test "should fail if called n-1", %{
-      some_mock: some_mock
-    } do
+    test "should fail if called n-1" do
       assert_raise(
         Mox.VerificationError,
         fn ->
           Amoxicillin.called_times_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             3,
             fn ->
-              some_mock.some_function()
-              some_mock.some_function()
+              SomeModule.some_function()
+              SomeModule.some_function()
             end
           )
         end
       )
     end
 
-    test "should fail if called n+1", %{
-      some_mock: some_mock
-    } do
+    test "should fail if called n+1" do
       assert_raise(
         Mox.UnexpectedCallError,
         fn ->
           Amoxicillin.called_times_when(
-            some_mock,
-            &some_mock.some_function/0,
+            &SomeModule.some_function/0,
             3,
             fn ->
-              some_mock.some_function()
-              some_mock.some_function()
-              some_mock.some_function()
-              some_mock.some_function()
+              SomeModule.some_function()
+              SomeModule.some_function()
+              SomeModule.some_function()
+              SomeModule.some_function()
             end
           )
         end
@@ -230,29 +200,23 @@ defmodule AmoxicillinTest do
   end
 
   describe "not_called_when" do
-    test "should verify function arity limit", %{
-      some_mock: some_mock
-    } do
+    test "should verify function arity limit" do
       assert_raise(
         Mox.VerificationError,
-        fn -> Amoxicillin.not_called_when(some_mock, &some_mock.with_arity/20, fn -> :ok end) end
+        fn -> Amoxicillin.not_called_when(&SomeModule.with_arity/20, fn -> :ok end) end
       )
     end
 
-    test "should assert not called", %{
-      some_mock: some_mock
-    } do
-      Amoxicillin.not_called_when(some_mock, &some_mock.with_arity/1, fn -> :ok end)
+    test "should assert not called" do
+      Amoxicillin.not_called_when(&SomeModule.with_arity/1, fn -> :ok end)
     end
 
-    test "should fail when not called", %{
-      some_mock: some_mock
-    } do
+    test "should fail when not called" do
       assert_raise(
         Mox.UnexpectedCallError,
         fn ->
-          Amoxicillin.not_called_when(some_mock, &some_mock.with_arity/1, fn ->
-            some_mock.with_arity(1)
+          Amoxicillin.not_called_when(&SomeModule.with_arity/1, fn ->
+            SomeModule.with_arity(1)
           end)
         end
       )

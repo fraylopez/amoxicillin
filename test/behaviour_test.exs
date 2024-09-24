@@ -9,7 +9,7 @@ defmodule Amoxicillin.BehaviourTest do
       :ok
     end
 
-    def with_arity(param) do
+    def with_arity(_param) do
       :ok
     end
   end
