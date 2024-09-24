@@ -23,19 +23,12 @@ defmodule AmoxicillinTest do
     end
   end
 
-  setup_all do
-    some_mock = Mox.defmock(SomeModuleMock, for: SomeBehaviour)
-    Application.ensure_all_started(:mox)
-
-    {:ok, some_mock: some_mock}
-  end
-
   describe "called_when" do
     test "should verify called" do
       Amoxicillin.called_when(
         &SomeModule.some_function/0,
         fn ->
-          SomeModule.some_function()
+          SomeCallerModule.some_function()
         end
       )
     end
@@ -45,8 +38,8 @@ defmodule AmoxicillinTest do
         &SomeModule.some_function/0,
         fn ->
           SomeModule.some_function()
-          SomeModule.some_function()
-          SomeModule.some_function()
+          SomeCallerModule.some_function()
+          SomeCallerModule.some_function()
         end
       )
     end
